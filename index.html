@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Baseline Content-Security-Policy for the static SPA (AS-* / public-facing-deploy).
+      - default-src 'self'            : everything defaults to same-origin.
+      - connect-src                  : only PokéAPI REST (pokeapi.co) + GraphQL beta (beta.pokeapi.co).
+      - img-src                      : own origin, data: URIs, and the PokéAPI sprite/artwork host
+                                       (raw.githubusercontent.com — confirmed from live sprite URLs).
+      - script-src 'self'            : no inline/eval script (Vite emits external, hashed bundles).
+      - style-src 'self' 'unsafe-inline' : Vue scoped styles / dynamic type-colour bindings inject
+                                       inline <style>/style attributes; this is the documented
+                                       narrowest exception. No 'unsafe-inline' on script-src.
+      - frame-ancestors 'none'       : not embeddable (clickjacking).
+      - base-uri 'none' / object-src 'none' : lock down <base> and legacy plugins.
+      If this app is later served behind a host/CDN, mirror this policy as a response header
+      (a header CSP supersedes the meta tag); keep the two in sync.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' https://pokeapi.co https://beta.pokeapi.co; img-src 'self' data: https://raw.githubusercontent.com; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
+    />
+    <title>PokeTactix — Battle Board</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
