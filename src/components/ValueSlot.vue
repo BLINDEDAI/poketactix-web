@@ -1,10 +1,16 @@
 <script setup lang="ts">
 // Item / nature slot (AC-6, AC-9). A dedicated slot (not free notes). Own = set directly;
-// opponent starts UNKNOWN and is filled when discovered. Free-text value (no PokéAPI text rendered).
+// opponent starts UNKNOWN and is filled when discovered. Picked from an autocomplete list
+// (PokéAPI items / natures, ES+EN) — same pattern as moves/abilities.
 import { ref } from 'vue'
+import type { SearchKind } from '@/composables/use-pokemon-search'
+import type { SearchSuggestion } from '@/types/search'
+import SearchAutocomplete from '@/components/SearchAutocomplete.vue'
 
-const props = defineProps<{
+defineProps<{
   label: string
+  /** Which autocomplete index to search (item | nature). */
+  kind: SearchKind
   /** Current value name, or null when unset/unknown. */
   value: string | null
   state: 'SET' | 'UNKNOWN' | 'HIDDEN'
@@ -15,34 +21,27 @@ const emit = defineEmits<{
   (event: 'set', value: string): void
 }>()
 
-const draft = ref(props.value ?? '')
 const editing = ref(false)
 
-function commit(): void {
-  const trimmed = draft.value.trim()
-  if (trimmed === '') return
-  emit('set', trimmed)
+function onSelect(suggestion: SearchSuggestion): void {
+  emit('set', suggestion.displayName)
   editing.value = false
 }
 </script>
 
 <template>
   <div class="value-slot">
-    <label v-if="editing" :for="inputId" class="value-slot__label">{{ label }}</label>
-    <span v-else class="value-slot__label">{{ label }}</span>
-
-    <template v-if="editing">
-      <input
-        :id="inputId"
-        v-model="draft"
-        type="text"
-        class="value-slot__input"
-        @keydown.enter.prevent="commit"
-      />
-      <button type="button" class="value-slot__save" @click="commit">Guardar</button>
-    </template>
+    <SearchAutocomplete
+      v-if="editing"
+      :kind="kind"
+      :label="label"
+      :input-id="inputId"
+      :placeholder="`${label.toLowerCase()} (ES/EN)`"
+      @select="onSelect"
+    />
 
     <template v-else>
+      <span class="value-slot__label">{{ label }}</span>
       <button
         type="button"
         class="value-slot__display"

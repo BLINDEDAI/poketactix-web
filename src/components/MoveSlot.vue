@@ -14,6 +14,7 @@ const props = defineProps<{
   generation: Generation
   cardId: string
   slotIndex: number
+  effectiveness?: number | null
 }>()
 
 const emit = defineEmits<{
@@ -44,54 +45,58 @@ async function onSelect(suggestion: SearchSuggestion): Promise<void> {
       class="flip"
       :class="{ 'flip--in': justRevealed }"
     >
-      <MoveChip :move="revealSlot.value" />
+      <MoveChip :move="revealSlot.value" :effectiveness="effectiveness" />
     </div>
 
-    <!-- Opponent face-down -->
-    <div v-else-if="isFaceDown(revealSlot)">
-      <button
-        v-if="!choosing"
-        type="button"
-        class="facedown"
-        :aria-label="`Revelar el movimiento ${slotIndex + 1} del Pokémon oponente`"
-        @click="choosing = true"
-      >
-        <span aria-hidden="true">?</span>
-      </button>
-      <SearchAutocomplete
-        v-else
-        kind="move"
-        :label="`Revelar movimiento ${slotIndex + 1}`"
-        :input-id="`reveal-move-${cardId}-${slotIndex}`"
-        placeholder="movimiento (ES/EN)"
-        @select="onSelect"
-      />
-    </div>
+    <!-- Choosing: search field (opens from the compact button below) -->
+    <SearchAutocomplete
+      v-else-if="choosing"
+      kind="move"
+      :label="
+        isFaceDown(revealSlot)
+          ? `Revelar movimiento ${slotIndex + 1}`
+          : `Movimiento ${slotIndex + 1}`
+      "
+      :input-id="`move-${cardId}-${slotIndex}`"
+      placeholder="movimiento (ES/EN)"
+      @select="onSelect"
+    />
 
-    <!-- Own side, not yet set -->
-    <div v-else>
-      <SearchAutocomplete
-        kind="move"
-        :label="`Movimiento ${slotIndex + 1}`"
-        :input-id="`set-move-${cardId}-${slotIndex}`"
-        placeholder="movimiento (ES/EN)"
-        @select="onSelect"
-      />
-    </div>
+    <!-- Compact slot button: '?' for the opponent (face-down), '+' for your own unset slot -->
+    <button
+      v-else
+      type="button"
+      class="facedown"
+      :class="{ 'facedown--own': !isFaceDown(revealSlot) }"
+      :aria-label="
+        isFaceDown(revealSlot)
+          ? `Revelar el movimiento ${slotIndex + 1} del Pokémon oponente`
+          : `Asignar el movimiento ${slotIndex + 1}`
+      "
+      @click="choosing = true"
+    >
+      <span aria-hidden="true">{{ isFaceDown(revealSlot) ? '?' : '+' }}</span>
+    </button>
   </div>
 </template>
 
 <style scoped>
 .facedown {
   width: 100%;
-  min-height: 2.6rem;
+  min-height: 2.1rem;
   border-radius: 0.4rem;
   border: 1px dashed #6b7280;
   background: linear-gradient(135deg, #3a4256, #232838);
   color: #f4c430;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 800;
   cursor: pointer;
+}
+.facedown--own {
+  border-style: solid;
+  border-color: #4a5165;
+  background: #21262f;
+  color: #8b93a4;
 }
 .facedown:focus-visible {
   outline: 2px solid #f4c430;

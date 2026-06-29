@@ -1,17 +1,38 @@
 <script setup lang="ts">
-// The battle board (AC-3..AC-16). Two TeamPanels, the EDIT⇄STREAMER view switch, the in-UI PokéAPI
-// error alert (role="alert", US-024 failure path). Layout scales up in STREAMER view for readability.
+// The battle board (AC-3..AC-16). Both teams share ONE grid so each row's two cards stay aligned
+// across sides even when one card is expanded (no column drift). EDIT⇄STREAMER view switch and the
+// in-UI PokéAPI error alert (role="alert", US-024 failure path) live here too.
 import { computed } from 'vue'
 import { useBattleStore } from '@/store/battle-store'
 import { usePokeApi } from '@/composables/use-poke-api'
-import TeamPanel from '@/components/TeamPanel.vue'
+import { MAX_TEAM_SIZE } from '@/types/battle'
+import type { SideKey } from '@/types/battle'
+import type { SearchSuggestion } from '@/types/search'
+import SearchAutocomplete from '@/components/SearchAutocomplete.vue'
+import PokemonCard from '@/components/PokemonCard.vue'
 
 const store = useBattleStore()
-const { apiError, clearError } = usePokeApi()
+const { client, reportError, apiError, clearError } = usePokeApi()
 
 const isStreamer = computed(() => store.view === 'STREAMER')
 const editable = computed(() => store.view === 'EDIT')
 const modeLabel = computed(() => (store.mode === 'DOUBLES' ? 'Dobles' : 'Individuales'))
+
+const ownCards = computed(() => store.teamFor('own')?.pokemon ?? [])
+const oppCards = computed(() => store.teamFor('opponent')?.pokemon ?? [])
+const rowCount = computed(() => Math.max(ownCards.value.length, oppCards.value.length))
+const canAddOwn = computed(() => ownCards.value.length < MAX_TEAM_SIZE)
+const canAddOpp = computed(() => oppCards.value.length < MAX_TEAM_SIZE)
+
+async function addPokemon(side: SideKey, suggestion: SearchSuggestion): Promise<void> {
+  if (!store.battle) return
+  const result = await client.getSpecies(suggestion.name, store.battle.generation)
+  if (!result.ok) {
+    reportError(result.error)
+    return
+  }
+  store.addPokemon(side, result.value)
+}
 </script>
 
 <template>
@@ -55,9 +76,50 @@ const modeLabel = computed(() => (store.mode === 'DOUBLES' ? 'Dobles' : 'Individ
       </button>
     </p>
 
-    <div class="board__sides">
-      <TeamPanel side="own" :generation="store.battle.generation" :editable="editable" />
-      <TeamPanel side="opponent" :generation="store.battle.generation" :editable="editable" />
+    <div class="board__grid">
+      <h2 class="team__heading">Tu equipo</h2>
+      <h2 class="team__heading">Equipo rival</h2>
+
+      <div class="board__add">
+        <SearchAutocomplete
+          v-if="editable && canAddOwn"
+          kind="pokemon"
+          label="Añadir Pokémon"
+          input-id="add-pokemon-own"
+          placeholder="nombre del Pokémon"
+          @select="(s) => addPokemon('own', s)"
+        />
+      </div>
+      <div class="board__add">
+        <SearchAutocomplete
+          v-if="editable && canAddOpp"
+          kind="pokemon"
+          label="Añadir Pokémon"
+          input-id="add-pokemon-opponent"
+          placeholder="nombre del Pokémon"
+          @select="(s) => addPokemon('opponent', s)"
+        />
+      </div>
+
+      <template v-for="i in rowCount" :key="i">
+        <PokemonCard
+          v-if="ownCards[i - 1]"
+          :card="ownCards[i - 1]"
+          side="own"
+          :generation="store.battle.generation"
+          :editable="editable"
+        />
+        <div v-else class="board__empty"></div>
+
+        <PokemonCard
+          v-if="oppCards[i - 1]"
+          :card="oppCards[i - 1]"
+          side="opponent"
+          :generation="store.battle.generation"
+          :editable="editable"
+        />
+        <div v-else class="board__empty"></div>
+      </template>
     </div>
   </main>
 </template>
@@ -130,20 +192,34 @@ const modeLabel = computed(() => (store.mode === 'DOUBLES' ? 'Dobles' : 'Individ
 .board__error-close:focus-visible {
   outline: 2px solid #fff;
 }
-.board__sides {
+
+/* Both teams in one grid → rows stay aligned across sides regardless of card height. */
+.board__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  column-gap: 1.25rem;
+  row-gap: 0.4rem;
+  /* align-items: stretch (default) → the two cards in a row match the taller one's height. */
 }
-/* STREAMER view scales the board up for readability at a distance. */
+.team__heading {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #f4f6fb;
+}
+.board__add {
+  min-height: 0;
+}
+.board__empty {
+  /* placeholder grid cell so a side with fewer Pokémon keeps the other column aligned */
+}
 .board--streamer {
   font-size: 1.1rem;
 }
-.board--streamer .board__sides {
-  gap: 2rem;
+.board--streamer .board__grid {
+  column-gap: 2rem;
 }
 @media (max-width: 720px) {
-  .board__sides {
+  .board__grid {
     grid-template-columns: 1fr;
   }
 }
