@@ -2,11 +2,15 @@
 // The board surfaces `apiError` via role="alert"; the raw cause never reaches the user (invariant).
 
 import { readonly, ref } from 'vue'
-import { PokeApiClient } from '@/data/poke-api-client'
+import { BundledPokeDataSource } from '@/data/bundled-poke-data-source'
+import type { PokeDataSource } from '@/data/poke-data-source'
 import type { PokeApiError, PokeApiErrorKind } from '@/data/poke-api-error'
 
-// One client per session so the in-session cache is shared across composables/components.
-const client = new PokeApiClient()
+// One data source per session. After ADR-004 this is the BUNDLED source: reference data is read from
+// the committed in-app bundle, never the network — so adds / reveals / search resolve instantly and
+// work offline. The whole app binds to the `PokeDataSource` interface, so this is the only line that
+// changed when the source moved from network to bundle. No runtime module imports a network client.
+const client: PokeDataSource = new BundledPokeDataSource()
 
 const apiError = ref<string | null>(null)
 

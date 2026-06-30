@@ -4,6 +4,7 @@
 // `editable` (EDIT view) shows operator controls; STREAMER view hides them but shows the same data.
 // Collapsed by default → a compact "glance" summary so all six fit; click to expand the full detail.
 import { computed, ref } from 'vue'
+import { SPRITE_PLACEHOLDER } from '@/data/sprite-placeholder'
 import type {
   Ability,
   Generation,
@@ -33,6 +34,16 @@ const props = defineProps<{
 const store = useBattleStore()
 
 const expanded = ref(false)
+// AC-7 — offline sprite degradation. Sprites stay a best-effort NETWORK image (not bundled); when the
+// image is absent (`sprite` is null) or fails to load (offline / 404), fall back to a neutral inline
+// `data:` placeholder so the card still renders every data-driven field with no broken-image artifact.
+const spriteFailed = ref(false)
+const spriteSrc = computed(() =>
+  props.card.sprite && !spriteFailed.value ? props.card.sprite : SPRITE_PLACEHOLDER,
+)
+function onSpriteError(): void {
+  spriteFailed.value = true
+}
 const frameStyle = computed(() => ({ background: frameGradient(props.card.types) }))
 const isOwn = computed(() => props.side === 'own')
 const abilityKnown = computed(() => props.card.ability.state === 'SET')
@@ -100,13 +111,14 @@ function onToggleActive(): void {
         @click="expanded = !expanded"
       >
         <img
-          v-if="card.sprite"
-          :src="card.sprite"
+          :src="spriteSrc"
           :alt="card.name"
           class="card__sprite"
+          :class="{ 'card__sprite--placeholder': !card.sprite || spriteFailed }"
           width="37"
           height="37"
           loading="lazy"
+          @error="onSpriteError"
         />
         <span class="card__summary-body">
           <span class="card__summary-top">
@@ -272,6 +284,11 @@ function onToggleActive(): void {
   height: 37px;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+/* Neutral placeholder when the network sprite is absent/failed — no drop-shadow on the flat glyph. */
+.card__sprite--placeholder {
+  filter: none;
+  opacity: 0.75;
 }
 .card__summary-body {
   flex: 1;

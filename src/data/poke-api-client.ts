@@ -4,6 +4,7 @@
 
 import type { Ability, Generation, Move, SpeciesData } from '@/types/battle'
 import type { LocalizedNameEntry, SearchSuggestion } from '@/types/search'
+import type { LocalizedKind, PokeDataSource, ResourceKind } from '@/data/poke-data-source'
 import { PokeApiError, err, ok, type Result } from '@/data/poke-api-error'
 import {
   isRecord,
@@ -31,7 +32,7 @@ export interface PokeApiClientOptions {
   fetchFn?: typeof fetch
 }
 
-export class PokeApiClient {
+export class PokeApiClient implements PokeDataSource {
   private readonly timeoutMs: number
   private readonly fetchFn: typeof fetch
   // In-session response caches (one per resource kind). Cleared only on page reload.
@@ -140,10 +141,7 @@ export class PokeApiClient {
    * List resource names of a kind (`pokemon` | `move` | `ability`) for autocomplete.
    * Uses a large `limit` to pull the full index once (cached); the search composable filters locally.
    */
-  async listResource(
-    kind: 'pokemon' | 'move' | 'ability' | 'item' | 'nature',
-    limit = 2000,
-  ): Promise<Result<SearchSuggestion[]>> {
+  async listResource(kind: ResourceKind, limit = 2000): Promise<Result<SearchSuggestion[]>> {
     const result = await this.getJson(`${REST_BASE}/${kind}?limit=${limit}&offset=0`)
     if (!result.ok) return result
     if (!isRecord(result.value) || !Array.isArray(result.value.results)) {
@@ -167,9 +165,7 @@ export class PokeApiClient {
    * Spanish (language_id = 7) name→id index for moves or abilities, via the GraphQL beta endpoint.
    * Seam-isolated: on any failure the caller falls back to REST `names` / English-only search.
    */
-  async getSpanishNameIndex(
-    kind: 'move' | 'ability' | 'item' | 'nature',
-  ): Promise<Result<LocalizedNameEntry[]>> {
+  async getSpanishNameIndex(kind: LocalizedKind): Promise<Result<LocalizedNameEntry[]>> {
     const table =
       kind === 'move'
         ? 'pokemon_v2_movename'

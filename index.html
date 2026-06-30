@@ -6,9 +6,13 @@
     <!--
       Baseline Content-Security-Policy for the static SPA (AS-* / public-facing-deploy).
       - default-src 'self'            : everything defaults to same-origin.
-      - connect-src                  : only PokéAPI REST (pokeapi.co) + GraphQL beta (beta.pokeapi.co).
-      - img-src                      : own origin, data: URIs, and the PokéAPI sprite/artwork host
-                                       (raw.githubusercontent.com — confirmed from live sprite URLs).
+      - connect-src 'self'           : reference data (species, moves, abilities, items, natures,
+                                       the Spanish-name index) is now PACKAGED in the app and read
+                                       from the committed bundle (ADR-004) — the runtime makes NO
+                                       outbound data fetch, so no external connect host is allowed.
+      - img-src                      : own origin, data: URIs (sprite placeholder fallback), and the
+                                       PokéAPI sprite/artwork host (raw.githubusercontent.com) — only
+                                       the Pokémon IMAGES still load from the network, best-effort.
       - script-src 'self'            : no inline/eval script (Vite emits external, hashed bundles).
       - style-src 'self' 'unsafe-inline' : Vue scoped styles / dynamic type-colour bindings inject
                                        inline <style>/style attributes; this is the documented
@@ -20,7 +24,7 @@
     -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; connect-src 'self' https://pokeapi.co https://beta.pokeapi.co; img-src 'self' data: https://raw.githubusercontent.com; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
+      content="default-src 'self'; connect-src 'self'; img-src 'self' data: https://raw.githubusercontent.com; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
     />
     <title>PokeTactix — Battle Board</title>
   </head>

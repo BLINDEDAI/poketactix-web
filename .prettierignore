@@ -2,3 +2,5 @@ node_modules
 dist
 coverage
 package-lock.json
+# Committed build artifacts — emitted by `npm run gen:poke-data` as minified single-line JSON, not hand-edited.
+src/data/generated

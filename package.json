@@ -15,7 +15,8 @@
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "gen:poke-data": "node scripts/generate-poke-data.mjs"
   },
   "dependencies": {
     "pinia": "^2.1.7",
