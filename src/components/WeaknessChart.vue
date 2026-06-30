@@ -30,7 +30,8 @@ const rows = computed(() => toRows(props.effectiveness))
 .weakness__title {
   margin: 0 0 0.3rem;
   font-size: 0.8rem;
-  color: #9aa1b2;
+  font-weight: 800;
+  color: #eef1f6;
 }
 .weakness__rows {
   margin: 0;

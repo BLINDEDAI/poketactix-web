@@ -49,36 +49,33 @@ async function onSelect(suggestion: SearchSuggestion): Promise<void> {
       </p>
     </div>
 
-    <!-- Opponent face-down -->
-    <div v-else-if="isFaceDown(revealSlot)" class="ability-slot__hidden">
-      <button
-        v-if="!choosing"
-        type="button"
-        class="facedown"
-        :aria-label="`Revelar la habilidad del Pokémon oponente`"
-        @click="choosing = true"
-      >
-        <span aria-hidden="true">?</span>
-      </button>
+    <!-- Choosing: search field (opens from the compact button below) -->
+    <div v-else-if="choosing" class="ability-slot__hidden">
       <SearchAutocomplete
-        v-else
         kind="ability"
-        label="Revelar habilidad"
-        :input-id="`reveal-ability-${cardId}`"
+        :label="isFaceDown(revealSlot) ? 'Revelar habilidad' : 'Habilidad'"
+        :input-id="`ability-${cardId}`"
         placeholder="habilidad (ES/EN)"
+        hide-label
         @select="onSelect"
       />
     </div>
 
-    <!-- Own side, not yet set -->
+    <!-- Compact slot button: '?' for the opponent (face-down), '+' for your own unset slot -->
     <div v-else class="ability-slot__hidden">
-      <SearchAutocomplete
-        kind="ability"
-        label="Habilidad"
-        :input-id="`set-ability-${cardId}`"
-        placeholder="habilidad (ES/EN)"
-        @select="onSelect"
-      />
+      <button
+        type="button"
+        class="facedown"
+        :class="{ 'facedown--own': !isFaceDown(revealSlot) }"
+        :aria-label="
+          isFaceDown(revealSlot)
+            ? 'Revelar la habilidad del Pokémon oponente'
+            : 'Asignar la habilidad'
+        "
+        @click="choosing = true"
+      >
+        <span aria-hidden="true">{{ isFaceDown(revealSlot) ? '?' : '+' }}</span>
+      </button>
     </div>
   </div>
 </template>
@@ -87,28 +84,41 @@ async function onSelect(suggestion: SearchSuggestion): Promise<void> {
 .ability-slot__label {
   margin: 0 0 0.25rem;
   font-size: 0.8rem;
-  color: #9aa1b2;
+  font-weight: 800;
+  color: #eef1f6;
+}
+.ability-slot__value {
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.45rem;
+  background: rgba(8, 10, 16, 0.55);
 }
 .ability-slot__value strong {
-  color: #f4f6fb;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.92rem;
 }
 .ability-slot__effect {
   margin: 0.2rem 0 0;
-  font-size: 0.78rem;
-  color: #b9bfcc;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #eef1f6;
 }
 .facedown {
-  width: 2.6rem;
-  height: 2.6rem;
-  min-width: 2.6rem;
-  min-height: 2.6rem;
+  width: 100%;
+  min-height: 2.1rem;
   border-radius: 0.4rem;
   border: 1px dashed #6b7280;
   background: linear-gradient(135deg, #3a4256, #232838);
   color: #f4c430;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 800;
   cursor: pointer;
+}
+.facedown--own {
+  border-style: solid;
+  border-color: #4a5165;
+  background: #21262f;
+  color: #8b93a4;
 }
 .facedown:focus-visible {
   outline: 2px solid #f4c430;

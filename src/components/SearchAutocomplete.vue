@@ -10,6 +10,8 @@ const props = defineProps<{
   label: string
   inputId: string
   placeholder?: string
+  /** Keep the label in the DOM (a11y) but hide it visually — avoids it bloating tight card slots. */
+  hideLabel?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -59,7 +61,7 @@ function onKeydown(event: KeyboardEvent): void {
 
 <template>
   <div class="search">
-    <label :for="inputId">{{ label }}</label>
+    <label :for="inputId" :class="{ 'sr-only': hideLabel }">{{ label }}</label>
     <input
       :id="inputId"
       v-model="query"
@@ -106,6 +108,17 @@ function onKeydown(event: KeyboardEvent): void {
 .search label {
   font-size: 0.85rem;
   color: #cfd3dc;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .search input {
   min-height: 2.25rem;

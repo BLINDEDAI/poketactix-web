@@ -32,12 +32,24 @@ export function typeColor(type: TypeName): string {
  * A CSS `linear-gradient` for a card frame, from the Pokémon's type(s).
  * Single type → solid-ish gradient; dual type → blend of both type colours.
  */
+/** Darken a `#rrggbb` colour toward black so a same-type badge/chip stands out against the frame. */
+function darken(hex: string, factor: number): string {
+  const n = parseInt(hex.slice(1), 16)
+  const r = Math.round(((n >> 16) & 255) * factor)
+  const g = Math.round(((n >> 8) & 255) * factor)
+  const b = Math.round((n & 255) * factor)
+  const toHex = (v: number): string => v.toString(16).padStart(2, '0')
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+}
+
 export function frameGradient(types: readonly TypeName[]): string {
-  if (types.length === 0) return 'linear-gradient(135deg, #444, #222)'
+  // Darkened type tint: keeps the type identity but lets full-brightness type badges/move chips
+  // and the text stand out (a same-type chip on a bright frame would otherwise blend in).
+  if (types.length === 0) return 'linear-gradient(135deg, #2a2d36, #1a1c22)'
   const first = types[0] as TypeName
   if (types.length === 1) {
-    return `linear-gradient(135deg, ${typeColor(first)}, ${typeColor(first)}cc)`
+    return `linear-gradient(135deg, ${darken(typeColor(first), 0.5)}, ${darken(typeColor(first), 0.34)})`
   }
   const second = types[1] as TypeName
-  return `linear-gradient(135deg, ${typeColor(first)}, ${typeColor(second)})`
+  return `linear-gradient(135deg, ${darken(typeColor(first), 0.5)}, ${darken(typeColor(second), 0.5)})`
 }

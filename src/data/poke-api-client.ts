@@ -141,7 +141,7 @@ export class PokeApiClient {
    * Uses a large `limit` to pull the full index once (cached); the search composable filters locally.
    */
   async listResource(
-    kind: 'pokemon' | 'move' | 'ability',
+    kind: 'pokemon' | 'move' | 'ability' | 'item' | 'nature',
     limit = 2000,
   ): Promise<Result<SearchSuggestion[]>> {
     const result = await this.getJson(`${REST_BASE}/${kind}?limit=${limit}&offset=0`)
@@ -167,9 +167,25 @@ export class PokeApiClient {
    * Spanish (language_id = 7) name→id index for moves or abilities, via the GraphQL beta endpoint.
    * Seam-isolated: on any failure the caller falls back to REST `names` / English-only search.
    */
-  async getSpanishNameIndex(kind: 'move' | 'ability'): Promise<Result<LocalizedNameEntry[]>> {
-    const table = kind === 'move' ? 'pokemon_v2_movename' : 'pokemon_v2_abilityname'
-    const idField = kind === 'move' ? 'move_id' : 'ability_id'
+  async getSpanishNameIndex(
+    kind: 'move' | 'ability' | 'item' | 'nature',
+  ): Promise<Result<LocalizedNameEntry[]>> {
+    const table =
+      kind === 'move'
+        ? 'pokemon_v2_movename'
+        : kind === 'ability'
+          ? 'pokemon_v2_abilityname'
+          : kind === 'item'
+            ? 'pokemon_v2_itemname'
+            : 'pokemon_v2_naturename'
+    const idField =
+      kind === 'move'
+        ? 'move_id'
+        : kind === 'ability'
+          ? 'ability_id'
+          : kind === 'item'
+            ? 'item_id'
+            : 'nature_id'
     const query = `query SpanishNames { ${table}(where: { language_id: { _eq: 7 } }) { ${idField} name } }`
 
     const controller = new AbortController()

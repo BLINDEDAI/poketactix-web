@@ -6,7 +6,7 @@ import { computed, ref } from 'vue'
 import type { SearchSuggestion } from '@/types/search'
 import { usePokeApi } from '@/composables/use-poke-api'
 
-export type SearchKind = 'pokemon' | 'move' | 'ability'
+export type SearchKind = 'pokemon' | 'move' | 'ability' | 'item' | 'nature'
 
 function normalize(text: string): string {
   return text.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '') // strip accents for accent-insensitive matching
@@ -44,7 +44,7 @@ export function usePokemonSearch(kind: SearchKind) {
       }
       englishIndex.value = listResult.value.map((s) => ({ ...s, displayName: humanize(s.name) }))
 
-      if (kind === 'move' || kind === 'ability') {
+      if (kind !== 'pokemon') {
         const spanishResult = await client.getSpanishNameIndex(kind)
         if (spanishResult.ok) {
           const map = new Map<number, string>()
