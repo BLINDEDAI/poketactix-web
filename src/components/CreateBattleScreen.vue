@@ -43,7 +43,10 @@ function onSubmit(): void {
 
 <template>
   <main class="create" aria-labelledby="create-title">
-    <h1 id="create-title" class="create__title">PokeTactix — Nuevo combate</h1>
+    <div class="create__hero">
+      <span class="create__brand">⚔️ PokeTactix</span>
+      <h1 id="create-title" class="create__title">Nuevo combate</h1>
+    </div>
 
     <form class="create__form" novalidate @submit.prevent="onSubmit">
       <div class="field">
@@ -94,16 +97,44 @@ function onSubmit(): void {
 .create {
   max-width: 30rem;
   margin: 0 auto;
-  padding: 2rem 1.25rem;
+  padding: 3rem 1.25rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.create__hero {
+  text-align: center;
+  margin-bottom: 1.6rem;
+}
+.create__brand {
+  display: block;
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #f4c430;
+  text-shadow: 0 2px 10px rgba(244, 196, 48, 0.25);
 }
 .create__title {
-  text-align: center;
-  color: #f4f6fb;
+  margin: 0.25rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #aeb4c2;
+}
+.create__tag {
+  margin: 0;
+  color: #9aa1b2;
+  font-size: 0.92rem;
 }
 .create__form {
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
+  padding: 1.6rem;
+  border-radius: 1rem;
+  border: 1px solid #232a36;
+  background: linear-gradient(180deg, #161b24, #11141c);
+  box-shadow: 0 16px 44px -20px #000;
 }
 .field {
   display: flex;
