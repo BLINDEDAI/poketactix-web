@@ -19,8 +19,8 @@ const DONATE_URL = 'https://ko-fi.com/blindedai'
       ☕ Invítame a un café
     </a>
     <p class="app-footer__legal">
-      Proyecto de fans sin ánimo de lucro. No afiliado a Nintendo / The Pokémon Company. Pokémon y
-      los nombres relacionados son marcas de sus respectivos propietarios.
+      No afiliado a Nintendo / The Pokémon Company. Pokémon y los nombres relacionados son marcas de
+      sus respectivos propietarios.
     </p>
   </footer>
 </template>
