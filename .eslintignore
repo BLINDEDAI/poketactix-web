@@ -2,3 +2,5 @@ node_modules
 dist
 coverage
 *.cjs
+# Committed build artifacts — generated JSON bundle (not hand-edited).
+src/data/generated
