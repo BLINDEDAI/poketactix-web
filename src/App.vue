@@ -18,6 +18,9 @@ const DONATE_URL = 'https://ko-fi.com/blindedai'
     <a class="app-footer__donate" :href="DONATE_URL" target="_blank" rel="noopener noreferrer">
       ☕ Invítame a un café
     </a>
+    <a class="app-footer__contact" href="mailto:contacto@poketactix.com">
+      ✉ contacto@poketactix.com
+    </a>
     <p class="app-footer__legal">
       No afiliado a Nintendo / The Pokémon Company. Pokémon y los nombres relacionados son marcas de
       sus respectivos propietarios.
@@ -65,6 +68,17 @@ body,
 }
 .app-footer__donate:hover {
   background: rgba(244, 196, 48, 0.12);
+}
+.app-footer__contact {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #9aa1b2;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+.app-footer__contact:hover {
+  color: #f4c430;
+  text-decoration: underline;
 }
 .app-footer__legal {
   max-width: 38rem;
