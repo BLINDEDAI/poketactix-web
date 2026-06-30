@@ -1,16 +1,28 @@
 <script setup lang="ts">
 // App shell. Create-battle screen vs board switched by the reactive store flag `boardOpen` —
-// no vue-router in v1 (ADR-001). EDIT⇄STREAMER is a further store flag handled inside the board.
+// no vue-router in v1 (ADR-001).
 import { useBattleStore } from '@/store/battle-store'
 import CreateBattleScreen from '@/components/CreateBattleScreen.vue'
 import BattleBoard from '@/components/BattleBoard.vue'
 
 const store = useBattleStore()
+
+const DONATE_URL = 'https://ko-fi.com/blindedai'
 </script>
 
 <template>
   <BattleBoard v-if="store.boardOpen && store.battle" />
   <CreateBattleScreen v-else />
+
+  <footer class="app-footer">
+    <a class="app-footer__donate" :href="DONATE_URL" target="_blank" rel="noopener noreferrer">
+      ☕ Invítame a un café
+    </a>
+    <p class="app-footer__legal">
+      Proyecto de fans sin ánimo de lucro. No afiliado a Nintendo / The Pokémon Company. Pokémon y
+      los nombres relacionados son marcas de sus respectivos propietarios.
+    </p>
+  </footer>
 </template>
 
 <style>
@@ -34,5 +46,31 @@ body,
     'Segoe UI',
     Roboto,
     sans-serif;
+}
+.app-footer {
+  text-align: center;
+  padding: 1.5rem 1rem 2rem;
+  border-top: 1px solid #1b2230;
+}
+.app-footer__donate {
+  display: inline-block;
+  margin-bottom: 0.6rem;
+  padding: 0.45rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #f4c430;
+  color: #f4c430;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+.app-footer__donate:hover {
+  background: rgba(244, 196, 48, 0.12);
+}
+.app-footer__legal {
+  max-width: 38rem;
+  margin: 0 auto;
+  color: #6b7382;
+  font-size: 0.72rem;
+  line-height: 1.5;
 }
 </style>
