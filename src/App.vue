@@ -25,7 +25,8 @@ body,
 #app {
   margin: 0;
   min-height: 100vh;
-  background: #0c0e16;
+  background: radial-gradient(circle at 50% -10%, #18203a, #0a0c14 60%);
+  background-attachment: fixed;
   color: #f4f6fb;
   font-family:
     system-ui,

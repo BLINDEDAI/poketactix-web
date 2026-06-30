@@ -20,7 +20,7 @@ import type {
 import { MAX_MOVE_SLOTS, MAX_TEAM_SIZE } from '@/types/battle'
 import { createPokemonCard } from '@/domain/pokemon-card'
 import { reveal, setSlot } from '@/domain/reveal-slot'
-import { loadBattle, saveBattle } from '@/store/persistence'
+import { clearBattle, loadBattle, saveBattle } from '@/store/persistence'
 
 function newBattleId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -193,6 +193,13 @@ export const useBattleStore = defineStore('battle', () => {
     if (battle.value !== null) saveBattle(battle.value)
   }
 
+  /** Discard the current battle and return to the Create-battle screen (clears persistence). */
+  function resetBattle(): void {
+    battle.value = null
+    boardOpen.value = false
+    clearBattle()
+  }
+
   return {
     // state
     battle,
@@ -221,5 +228,6 @@ export const useBattleStore = defineStore('battle', () => {
     switchView,
     hydrate,
     persist,
+    resetBattle,
   }
 })
