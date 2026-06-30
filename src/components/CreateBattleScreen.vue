@@ -1,6 +1,7 @@
 <script setup lang="ts">
-// Create-battle screen (AC-1): name, generation (Gen 3–9, required), mode, initial view.
+// Create-battle screen (AC-1): name, generation (Gen 3–9, required), mode.
 // Validation shown only after interaction; submit disabled until valid; @submit.prevent.
+// (view is fixed to EDIT internally — the streamer view was removed.)
 import { computed, ref } from 'vue'
 import type { BattleMode, Generation, ViewMode } from '@/types/battle'
 import { ALL_GENERATIONS } from '@/types/battle'
@@ -80,12 +81,6 @@ function onSubmit(): void {
           ><input v-model="mode" type="radio" value="SINGLES" /> Individuales</label
         >
         <label class="radio"><input v-model="mode" type="radio" value="DOUBLES" /> Dobles</label>
-      </fieldset>
-
-      <fieldset class="field">
-        <legend>Vista inicial</legend>
-        <label class="radio"><input v-model="view" type="radio" value="EDIT" /> Edición</label>
-        <label class="radio"><input v-model="view" type="radio" value="STREAMER" /> Streamer</label>
       </fieldset>
 
       <button type="submit" class="create__submit" :disabled="touched && !isValid">

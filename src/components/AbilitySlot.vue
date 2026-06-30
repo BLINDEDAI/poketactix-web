@@ -56,6 +56,7 @@ async function onSelect(suggestion: SearchSuggestion): Promise<void> {
         :label="isFaceDown(revealSlot) ? 'Revelar habilidad' : 'Habilidad'"
         :input-id="`ability-${cardId}`"
         placeholder="habilidad (ES/EN)"
+        hide-label
         @select="onSelect"
       />
     </div>

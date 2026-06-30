@@ -1,4 +1,4 @@
-// Component tests: CreateBattleScreen → BattleBoard flow + view switch (AC-1, AC-3)
+// Component tests: CreateBattleScreen → BattleBoard flow (AC-1). Streamer view removed.
 // Mocks usePokeApi — no real network calls.
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
@@ -115,26 +115,9 @@ describe('CreateBattleScreen — AC-1', () => {
 
     expect(spy).toHaveBeenCalledWith(expect.objectContaining({ mode: 'DOUBLES' }))
   })
-
-  it('passes STREAMER view when selected', async () => {
-    const store = useBattleStore()
-    const spy = vi.spyOn(store, 'createBattle')
-    const wrapper = mount(CreateBattleScreen)
-
-    await wrapper.find('input#battle-name').setValue('Streamer Battle')
-    await wrapper.find('select#battle-generation').setValue('GEN_7')
-    const streamerRadio = wrapper
-      .findAll('input[type="radio"]')
-      .find((r) => (r.element as HTMLInputElement).value === 'STREAMER')
-    await streamerRadio!.setValue(true)
-    await wrapper.find('form').trigger('submit')
-    await nextTick()
-
-    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ view: 'STREAMER' }))
-  })
 })
 
-describe('BattleBoard — edit ⇄ streamer view switch (AC-3)', () => {
+describe('BattleBoard — rendering', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
@@ -157,48 +140,5 @@ describe('BattleBoard — edit ⇄ streamer view switch (AC-3)', () => {
     const wrapper = mount(BattleBoard)
     expect(wrapper.text()).toContain('Test')
     expect(wrapper.text()).toContain('6') // generation number
-  })
-
-  it('EDIT view has no board--streamer class', () => {
-    createActiveBattle()
-    const wrapper = mount(BattleBoard)
-    expect(wrapper.find('main.board').classes()).not.toContain('board--streamer')
-  })
-
-  it('switchView to STREAMER adds board--streamer class and same battle data persists', async () => {
-    const store = createActiveBattle()
-    const wrapper = mount(BattleBoard)
-
-    store.switchView('STREAMER')
-    await nextTick()
-
-    expect(wrapper.find('main.board').classes()).toContain('board--streamer')
-    // battle data unchanged
-    expect(store.battle!.name).toBe('Test')
-    expect(store.battle!.generation).toBe('GEN_6')
-  })
-
-  it('clicking the Streamer button switches view', async () => {
-    const store = createActiveBattle()
-    const wrapper = mount(BattleBoard)
-
-    const streamerBtn = wrapper.findAll('button').find((b) => b.text() === 'Streamer')
-    await streamerBtn!.trigger('click')
-    await nextTick()
-
-    expect(store.view).toBe('STREAMER')
-  })
-
-  it('clicking Edición button switches back to EDIT', async () => {
-    const store = createActiveBattle()
-    store.switchView('STREAMER')
-    const wrapper = mount(BattleBoard)
-    await nextTick()
-
-    const editBtn = wrapper.findAll('button').find((b) => b.text() === 'Edición')
-    await editBtn!.trigger('click')
-    await nextTick()
-
-    expect(store.view).toBe('EDIT')
   })
 })

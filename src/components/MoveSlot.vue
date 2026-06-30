@@ -59,6 +59,7 @@ async function onSelect(suggestion: SearchSuggestion): Promise<void> {
       "
       :input-id="`move-${cardId}-${slotIndex}`"
       placeholder="movimiento (ES/EN)"
+      hide-label
       @select="onSelect"
     />
 

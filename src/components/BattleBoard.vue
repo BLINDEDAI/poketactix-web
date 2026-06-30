@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// The battle board (AC-3..AC-16). Both teams share ONE grid so each row's two cards stay aligned
-// across sides even when one card is expanded (no column drift). EDIT⇄STREAMER view switch and the
-// in-UI PokéAPI error alert (role="alert", US-024 failure path) live here too.
+// The battle board (AC-4..AC-16). Both teams share ONE grid so each row's two cards stay aligned
+// across sides even when one card is expanded (no column drift). The in-UI PokéAPI error alert
+// (role="alert", US-024 failure path) lives here too. (Streamer view removed; board is always editable.)
 import { computed } from 'vue'
 import { useBattleStore } from '@/store/battle-store'
 import { usePokeApi } from '@/composables/use-poke-api'
@@ -14,7 +14,6 @@ import PokemonCard from '@/components/PokemonCard.vue'
 const store = useBattleStore()
 const { client, reportError, apiError, clearError } = usePokeApi()
 
-const isStreamer = computed(() => store.view === 'STREAMER')
 const editable = computed(() => store.view === 'EDIT')
 const modeLabel = computed(() => (store.mode === 'DOUBLES' ? 'Dobles' : 'Individuales'))
 
@@ -36,31 +35,13 @@ async function addPokemon(side: SideKey, suggestion: SearchSuggestion): Promise<
 </script>
 
 <template>
-  <main v-if="store.battle" class="board" :class="{ 'board--streamer': isStreamer }">
+  <main v-if="store.battle" class="board">
     <header class="board__bar">
       <div class="board__meta">
         <h1 class="board__name">{{ store.battle.name }}</h1>
         <p class="board__sub">
           Gen {{ store.battle.generation.replace('GEN_', '') }} · {{ modeLabel }}
         </p>
-      </div>
-      <div class="board__views" role="group" aria-label="Cambiar vista">
-        <button
-          type="button"
-          class="viewbtn"
-          :aria-pressed="store.view === 'EDIT'"
-          @click="store.switchView('EDIT')"
-        >
-          Edición
-        </button>
-        <button
-          type="button"
-          class="viewbtn"
-          :aria-pressed="store.view === 'STREAMER'"
-          @click="store.switchView('STREAMER')"
-        >
-          Streamer
-        </button>
       </div>
     </header>
 
@@ -148,28 +129,6 @@ async function addPokemon(side: SideKey, suggestion: SearchSuggestion): Promise<
   color: #aeb4c2;
   font-size: 0.85rem;
 }
-.board__views {
-  display: flex;
-  gap: 0.4rem;
-}
-.viewbtn {
-  min-height: 2.4rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 0.4rem;
-  border: 1px solid #5b6172;
-  background: #262b37;
-  color: #f4f6fb;
-  cursor: pointer;
-}
-.viewbtn[aria-pressed='true'] {
-  background: #f4c430;
-  color: #1c1f29;
-  font-weight: 700;
-}
-.viewbtn:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
-}
 .board__error {
   display: flex;
   align-items: center;
@@ -211,12 +170,6 @@ async function addPokemon(side: SideKey, suggestion: SearchSuggestion): Promise<
 }
 .board__empty {
   /* placeholder grid cell so a side with fewer Pokémon keeps the other column aligned */
-}
-.board--streamer {
-  font-size: 1.1rem;
-}
-.board--streamer .board__grid {
-  column-gap: 2rem;
 }
 @media (max-width: 720px) {
   .board__grid {
